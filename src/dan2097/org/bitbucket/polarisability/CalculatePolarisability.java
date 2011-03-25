@@ -89,25 +89,20 @@ public class CalculatePolarisability {
 
 	private static void determinePartialChargesUsingPEOE(IndigoObject molecule, Map<Integer, Double> partialCharges) {
 		for (int i = 1; i <= 5; i++) {//perform 5 iterations
-			Set<Integer> visitedBonds = new HashSet<Integer>();
-			for (Iterator<IndigoObject> iterator = molecule.iterateAtoms(); iterator.hasNext();) {
-				IndigoObject atom = iterator.next();
-				for (Iterator<IndigoObject> neighbourIterator = atom.iterateNeighbors(); neighbourIterator.hasNext();) {
-					IndigoObject neighbour = neighbourIterator.next();
-					if(!visitedBonds.contains(neighbour.bond().index())){
-						visitedBonds.add(neighbour.bond().index());
-						double parentAtomElectronegativity = determineElectronegativity(atom, partialCharges.get(atom.index()));
-						double neighbourAtomElectronegativity = determineElectronegativity(neighbour, partialCharges.get(neighbour.index()));
-						IndigoObject moreElectronegativeAtom = parentAtomElectronegativity >=neighbourAtomElectronegativity ? atom : neighbour;
-						double moreElectroNegValue = parentAtomElectronegativity >=neighbourAtomElectronegativity ? parentAtomElectronegativity : neighbourAtomElectronegativity;
-						IndigoObject lessElectronegativeAtom = parentAtomElectronegativity >= neighbourAtomElectronegativity ? neighbour : atom;
-						double lessElectroNegValue = parentAtomElectronegativity >=neighbourAtomElectronegativity ? neighbourAtomElectronegativity : parentAtomElectronegativity;
-						double lessElectroNegPositiveIonValue = determineElectronegativity(lessElectronegativeAtom, partialCharges.get(lessElectronegativeAtom.index())+1);
-						double chargeTransferred = (( moreElectroNegValue - lessElectroNegValue)/lessElectroNegPositiveIonValue)*Math.pow(0.5, i);
-						partialCharges.put(moreElectronegativeAtom.index(), partialCharges.get(moreElectronegativeAtom.index()) -chargeTransferred);//make the more electronegative atom more negative
-						partialCharges.put(lessElectronegativeAtom.index(), partialCharges.get(lessElectronegativeAtom.index()) +chargeTransferred);
-					}
-				}
+			for (Iterator<IndigoObject> iterator = molecule.iterateBonds(); iterator.hasNext();) {
+				IndigoObject bond = iterator.next();
+				IndigoObject sourceAtom = bond.source();
+				IndigoObject destinationAtom = bond.destination();
+				double parentAtomElectronegativity = determineElectronegativity(sourceAtom, partialCharges.get(sourceAtom.index()));
+				double neighbourAtomElectronegativity = determineElectronegativity(destinationAtom, partialCharges.get(destinationAtom.index()));
+				IndigoObject moreElectronegativeAtom = parentAtomElectronegativity >=neighbourAtomElectronegativity ? sourceAtom : destinationAtom;
+				double moreElectroNegValue = parentAtomElectronegativity >=neighbourAtomElectronegativity ? parentAtomElectronegativity : neighbourAtomElectronegativity;
+				IndigoObject lessElectronegativeAtom = parentAtomElectronegativity >= neighbourAtomElectronegativity ? destinationAtom : sourceAtom;
+				double lessElectroNegValue = parentAtomElectronegativity >=neighbourAtomElectronegativity ? neighbourAtomElectronegativity : parentAtomElectronegativity;
+				double lessElectroNegPositiveIonValue = determineElectronegativity(lessElectronegativeAtom, partialCharges.get(lessElectronegativeAtom.index())+1);
+				double chargeTransferred = (( moreElectroNegValue - lessElectroNegValue)/lessElectroNegPositiveIonValue)*Math.pow(0.5, i);
+				partialCharges.put(moreElectronegativeAtom.index(), partialCharges.get(moreElectronegativeAtom.index()) -chargeTransferred);//make the more electronegative atom more negative
+				partialCharges.put(lessElectronegativeAtom.index(), partialCharges.get(lessElectronegativeAtom.index()) +chargeTransferred);
 			}
 		}
 	}
