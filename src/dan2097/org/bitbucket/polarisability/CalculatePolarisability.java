@@ -1,5 +1,8 @@
 package dan2097.org.bitbucket.polarisability;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -15,10 +18,29 @@ public class CalculatePolarisability {
 	private static final double a0Cubed = 1.48184534*Math.pow(10,-31);
 	private static Indigo indigo = new Indigo();
 	
-	public static void main(String[] args) {
-		String smiles ="O=S=O";
-		System.out.println(smilesToPolarisability(smiles, true));
-		System.out.println(smilesToPolarisability(smiles, false));
+	public static void main(String[] args) throws IOException {
+		System.err.println("Input is line seperated SMILES. Output format is tab delimited: Smiles, polarisability (with PEOE), polarisability (without PEOE)");
+		BufferedReader stdinReader = new BufferedReader(new InputStreamReader(System.in));
+		String smiles = stdinReader.readLine();
+		while(smiles !=null) {
+			Double polarisabilityWithoutPEOE = null;
+			Double polarisabilityWithPEOE = null;
+			try{
+				polarisabilityWithoutPEOE = CalculatePolarisability.smilesToPolarisability(smiles, false);
+				try{
+					polarisabilityWithPEOE = CalculatePolarisability.smilesToPolarisability(smiles, true);
+				}
+				catch (Exception e) {
+					System.err.println("Failed to calculate polarisability for: " + smiles +" (with PEOE)");
+				}
+			}
+			catch (Exception e) {
+				System.err.println("Failed to calculate polarisability for: " + smiles +" (without PEOE)");
+			}
+			System.out.println(smiles +"\t" + (polarisabilityWithPEOE != null ? polarisabilityWithPEOE : "")+"\t" + (polarisabilityWithoutPEOE != null ? polarisabilityWithoutPEOE : ""));
+			System.out.flush();
+			smiles = stdinReader.readLine();
+		}
 	}
 	
 	/**
