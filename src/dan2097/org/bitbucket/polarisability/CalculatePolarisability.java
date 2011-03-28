@@ -4,11 +4,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import com.ggasoftware.indigo.Indigo;
 import com.ggasoftware.indigo.IndigoObject;
@@ -21,23 +19,28 @@ public class CalculatePolarisability {
 	public static void main(String[] args) throws IOException {
 		System.err.println("Input is line seperated SMILES. Output format is tab delimited: Smiles, polarisability (with PEOE), polarisability (without PEOE)");
 		BufferedReader stdinReader = new BufferedReader(new InputStreamReader(System.in));
-		String smiles = stdinReader.readLine();
+		String smiles = stdinReader.readLine().trim();
 		while(smiles !=null) {
-			Double polarisabilityWithoutPEOE = null;
-			Double polarisabilityWithPEOE = null;
-			try{
-				polarisabilityWithoutPEOE = CalculatePolarisability.smilesToPolarisability(smiles, false);
+			if (smiles.equals("") || smiles.startsWith("//")){
+				System.out.println("");
+			}
+			else {
+				Double polarisabilityWithoutPEOE = null;
+				Double polarisabilityWithPEOE = null;
 				try{
-					polarisabilityWithPEOE = CalculatePolarisability.smilesToPolarisability(smiles, true);
+					polarisabilityWithoutPEOE = CalculatePolarisability.smilesToPolarisability(smiles, false);
+					try{
+						polarisabilityWithPEOE = CalculatePolarisability.smilesToPolarisability(smiles, true);
+					}
+					catch (Exception e) {
+						System.err.println("Failed to calculate polarisability for: " + smiles +" (with PEOE)");
+					}
 				}
 				catch (Exception e) {
-					System.err.println("Failed to calculate polarisability for: " + smiles +" (with PEOE)");
+					System.err.println("Failed to calculate polarisability for: " + smiles +" (without PEOE)");
 				}
+				System.out.println(smiles +"\t" + (polarisabilityWithPEOE != null ? polarisabilityWithPEOE : "")+"\t" + (polarisabilityWithoutPEOE != null ? polarisabilityWithoutPEOE : ""));
 			}
-			catch (Exception e) {
-				System.err.println("Failed to calculate polarisability for: " + smiles +" (without PEOE)");
-			}
-			System.out.println(smiles +"\t" + (polarisabilityWithPEOE != null ? polarisabilityWithPEOE : "")+"\t" + (polarisabilityWithoutPEOE != null ? polarisabilityWithoutPEOE : ""));
 			System.out.flush();
 			smiles = stdinReader.readLine();
 		}
