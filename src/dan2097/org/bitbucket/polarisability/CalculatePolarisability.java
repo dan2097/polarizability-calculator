@@ -17,7 +17,7 @@ public class CalculatePolarisability {
 	private static Indigo indigo = new Indigo();
 	
 	public static void main(String[] args) throws IOException {
-		System.err.println("Input is line seperated SMILES. Output format is tab delimited: Smiles, polarisability (with PEOE), polarisability (without PEOE)");
+		System.err.println("Input is line seperated SMILES. Output format is tab delimited: Smiles, polarisability in cm3 (with PEOE), polarisability in cm3 (without PEOE)");
 		BufferedReader stdinReader = new BufferedReader(new InputStreamReader(System.in));
 		String smiles = stdinReader.readLine().trim();
 		while(smiles !=null) {
@@ -50,7 +50,7 @@ public class CalculatePolarisability {
 	 * Uses the method described in "A fast empirical method for the calculation of molecular polarizability"
 	 * to rapidly calculate molecular polarizability. DOI: 10.1007/BF00125380
 	 * 
-	 * Results are ouput in units of 10^-25 cm3
+	 * Results are ouput in units of cm3
 	 * 
 	 * PEOE (partial equalization of orbital electronegativity) should be enabled for the most accurate result
 	 * @param smiles
@@ -63,7 +63,7 @@ public class CalculatePolarisability {
 	}
 
 	/**
-	 * Calculates molecular polarisability in units of 10^-25 cm3
+	 * Calculates molecular polarisability in units of cm3
 	 * @param molecule
 	 */
 	private static double calculatePolarisability(IndigoObject molecule, boolean peoe) {
